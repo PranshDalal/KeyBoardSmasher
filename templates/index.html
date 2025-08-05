@@ -1,0 +1,58 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Keyboard Smash Mood Classifier</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 80px auto;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 80%;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    #result {
+      font-size: 22px;
+      margin-top: 30px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Keyboard Smash Mood Classifier</h1>
+  <input type="text" id="smash" placeholder="Type your keyboard smash...">
+  <br>
+  <button onclick="predictMood()">Predict Mood</button>
+  <div id="result"></div>
+
+  <script>
+    async function predictMood() {
+      const smash = document.getElementById("smash").value;
+      const response = await fetch("/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ smash })
+      });
+
+      const data = await response.json();
+      document.getElementById("result").innerText = response.ok
+        ? `Mood: ${data.mood}`
+        : `Error: ${data.error || 'Something went wrong'}`;
+    }
+  </script>
+</body>
+</html>
