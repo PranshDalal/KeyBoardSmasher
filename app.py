@@ -3,16 +3,24 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 import numpy as np
+import os
 
 app = Flask(__name__)
 
-model = load_model("model/keyboard_smash_model.h5")
-with open("model/tokenizer.pkl", "rb") as f:
-    tokenizer = pickle.load(f)
-with open("model/label_encoder.pkl", "rb") as f:
-    label_enc = pickle.load(f)
+model = None
+tokenizer = None
+label_enc = None
+MAX_LEN = None
 
-MAX_LEN = model.input_shape[1]
+def load_resources():
+    global model, tokenizer, label_enc, MAX_LEN
+    if model is None:
+        model = load_model("model/keyboard_smash_model.h5")
+        with open("model/tokenizer.pkl", "rb") as f:
+            tokenizer = pickle.load(f)
+        with open("model/label_encoder.pkl", "rb") as f:
+            label_enc = pickle.load(f)
+        MAX_LEN = model.input_shape[1]
 
 @app.route("/")
 def index():
@@ -20,6 +28,7 @@ def index():
 
 @app.route("/api/predict", methods=["POST"])
 def predict():
+    load_resources()
     data = request.json
     if not data or "smash" not in data:
         return jsonify({"error": "Missing 'smash' in request"}), 400
